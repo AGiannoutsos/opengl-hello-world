@@ -21,6 +21,7 @@
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);  
 void processInput(GLFWwindow *window);
 float getActiveTime(); 
+float getRotationTime();
 
 #define TEXTURES_PATH_CONTAINER "resources/textures/container.png"
 #define PLANET_MODEL_PATH "resources/planet/planet.obj"
@@ -34,11 +35,11 @@ float getActiveTime();
 #define NUM_OF_CONTAINERS 6
 
 // global orbital speed
-float globalRotationSpeed = 80.0f;
-float globalRotationSpeedIncrease = 1.5f;
+float globalRotationSpeed = 1.0f;
+float globalRotationSpeedIncrease = 0.02f;
 
 const float cameraSpeed = 0.1f; 
-const float cameraRotationSpeed = 0.05f; 
+const float cameraRotationSpeed = 0.02f; 
 
 // camera
 glm::vec3 cameraPos   = glm::vec3(0.0f, 5.0f, 40.0f);
@@ -51,6 +52,8 @@ float cameraTilt = 0.0;
 // time per frame
 float deltaTime = 0.0f;
 float lastFrameTime = 0.0f; 
+float prevFrameTime = 0.0f; 
+float prevRotationTime = 0.0f; 
 float currentFrameTime = 0.0f;
 float fps = 0.0f;
 int framesRendered = 0.0f;
@@ -268,7 +271,7 @@ int main(){
         planetPos = glm::translate(planetPos, POINT_ZERO);
         planetPos = glm::scale(planetPos, glm::vec3(1.0f, 1.0f, 1.0f));
         // set the orbital movement of the planet around (0,1,0)
-        planetPos = glm::rotate(planetPos, globalRotationSpeed * glm::radians(getActiveTime()), glm::vec3(0.0f, 1.0f, 0.0f));
+        planetPos = glm::rotate(planetPos, getRotationTime(), glm::vec3(0.0f, 1.0f, 0.0f));
         // move to a radius
         planetPos = glm::translate(planetPos, PLANET_ORBITAL_RADIUS);
 
@@ -312,12 +315,12 @@ int main(){
             glm::mat4 cotainerPos = glm::mat4(1.0f);
             // move to the center of the planet
             cotainerPos = glm::translate(cotainerPos, glm::vec3(planetPos * glm::vec4(POINT_ZERO, 1.0)));
-            cotainerPos = glm::rotate(cotainerPos, globalRotationSpeed * containerOrbitSpeeds[container] * glm::radians(getActiveTime()) + containerOrbitOffsets[container], containerOrbitAxes[container]);
+            cotainerPos = glm::rotate(cotainerPos,  containerOrbitSpeeds[container] * getRotationTime() + containerOrbitOffsets[container], containerOrbitAxes[container]);
             // move relative to the planet
             cotainerPos = glm::translate(cotainerPos, containerOrbits[container] );
 
             // calculate the containers rotation around themself
-            cotainerPos = glm::rotate(cotainerPos, globalRotationSpeed * containerRotationAxesSpeeds[container] * glm::radians(getActiveTime()) + containerRotationAxesOffsets[container], containerRotationAxes[container]);
+            cotainerPos = glm::rotate(cotainerPos,  containerRotationAxesSpeeds[container] * getRotationTime() + containerRotationAxesOffsets[container], containerRotationAxes[container]);
 
             containerShader.setMat4("model", cotainerPos);
 
@@ -342,14 +345,17 @@ int main(){
 
         // get the frame rate
         currentFrameTime = getActiveTime(); 
-        deltaTime = currentFrameTime - lastFrameTime;
+        deltaTime = currentFrameTime - prevFrameTime;
         // get the fps
         framesRendered++;
         if ((int)currentFrameTime- prevSec == 1){
-            printf("FPS %d %f\n",framesRendered, (double)globalRotationSpeed);
+            printf("FPS %d\n",framesRendered);
             framesRendered = 0;
         }
         prevSec = (int)getActiveTime();
+        prevFrameTime = currentFrameTime;
+        prevRotationTime = getRotationTime();
+
 
         // check if paused
         processInput(window);
@@ -357,6 +363,7 @@ int main(){
             // reset the timer
             pausedTime = (float)glfwGetTime();
             lastFrameTime = currentFrameTime;
+            prevFrameTime = currentFrameTime;
             // sleep a framerate time
             usleep(PAUSE_SLEEP_TIME);
             // input process
@@ -376,6 +383,11 @@ int main(){
 
     glfwTerminate();    
     return 0;
+}
+
+// rotation time different for the speed up and slow down of the animation
+float getRotationTime(){
+    return prevRotationTime + (globalRotationSpeed * deltaTime);
 }
 
 float getActiveTime(){
@@ -411,10 +423,10 @@ void processInput(GLFWwindow *window){
     // rotate left and right
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
         // change the front of x an z 
-        cameraFront = glm::vec3(sin(cameraRotation += cameraRotationSpeed*cameraSpeed), sin(cameraTilt), -cos(cameraRotation += cameraRotationSpeed*cameraSpeed)-cos(cameraTilt)); 
+        cameraFront = glm::vec3(sin(cameraRotation += cameraRotationSpeed*cameraSpeed), 0.0f, -cos(cameraRotation += cameraRotationSpeed*cameraSpeed)); 
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
         // change the front of x an z 
-        cameraFront = glm::vec3(sin(cameraRotation -= cameraRotationSpeed*cameraSpeed), sin(cameraTilt), -cos(cameraRotation -= cameraRotationSpeed*cameraSpeed)-cos(cameraTilt)); 
+        cameraFront = glm::vec3(sin(cameraRotation -= cameraRotationSpeed*cameraSpeed), 0.0f, -cos(cameraRotation -= cameraRotationSpeed*cameraSpeed)); 
 
     // left and right
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
