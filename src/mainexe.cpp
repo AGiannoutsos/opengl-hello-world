@@ -11,7 +11,6 @@
 #include <cmath>
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
-// #include <shader_s.h>
 #include <shader_m.h>
 #include <filesystem.h>
 #include <model.h>
@@ -30,15 +29,19 @@ float getActiveTime();
 #define WINDOW_HEIGHT 600
 
 #define PROJECTION_FOV glm::radians(45.0f)
-#define PLANET_ORBITAL_RADIUS glm::vec3(5.0f, 0.0f,  0.0f)
+#define PLANET_ORBITAL_RADIUS glm::vec3(0.0f, 0.0f,  5.0f)
 #define POINT_ZERO glm::vec3(0.0f, 0.0f, 0.0f)
 #define NUM_OF_CONTAINERS 6
 
+// global orbital speed
+float globalRotationSpeed = 80.0f;
+float globalRotationSpeedIncrease = 1.5f;
+
 const float cameraSpeed = 0.1f; 
-const float rotationSpeed = 0.05f; 
+const float cameraRotationSpeed = 0.05f; 
 
 // camera
-glm::vec3 cameraPos   = glm::vec3(0.0f, 5.0f, 20.0f);
+glm::vec3 cameraPos   = glm::vec3(0.0f, 5.0f, 40.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 glm::vec3 cameraUpward = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -135,12 +138,12 @@ int main(){
     };
     // orbital radius for the containers
     glm::vec3 containerOrbits[] = {
-        glm::vec3( 7.0f,  0.0f,  0.0f),
-        glm::vec3( 10.0f,  0.0f,  0.0f),
-        glm::vec3( 14.0f,  0.0f,  0.0f),
-        glm::vec3( 17.0f,  0.0f,  0.0f),
-        glm::vec3( 19.0f,  0.0f,  0.0f),
-        glm::vec3( 21.0f,  0.0f,  0.0f)
+        glm::vec3( 0.0f,  0.0f,  7.0f),
+        glm::vec3( 0.0f,  0.0f,  10.0f),
+        glm::vec3( 0.0f,  0.0f,  14.0f),
+        glm::vec3( 0.0f,  0.0f,  17.0f),
+        glm::vec3( 0.0f,  0.0f,  19.0f),
+        glm::vec3( 0.0f,  0.0f,  21.0f)
     };
 
     // orbital axes for the containers
@@ -150,7 +153,7 @@ int main(){
         glm::vec3( sin(45.0),  cos(45.0),  0.0f),
         glm::vec3( sin(0.0),  cos(0.0),  0.0f),
         glm::vec3( sin(0.0),  cos(0.0),  0.0f),
-        glm::vec3( sin(15.0),  cos(15.0),  0.0f),
+        glm::vec3( sin(15.0),  cos(15.0),  0.0f)
     };
 
     // orbital speeds for the containers
@@ -165,12 +168,12 @@ int main(){
 
     // rotational axes for the containers
     glm::vec3 containerRotationAxes[] = {
-        glm::vec3( 0.0f,  1.0f,  0.0f),
-        glm::vec3( 0.0f,  1.0f,  0.0f),
-        glm::vec3( 0.0f,  1.0f,  0.0f),
-        glm::vec3( 0.0f,  1.0f,  0.0f),
-        glm::vec3( 0.0f,  1.0f,  0.0f),
-        glm::vec3( 0.0f,  1.0f,  0.0f)
+        glm::vec3( sin(45.0),  cos(45.0),  0.0f),
+        glm::vec3( sin(10.0),  cos(10.0),  0.0f),
+        glm::vec3( sin(45.0),  cos(45.0),  0.0f),
+        glm::vec3( sin(90.0),  cos(90.0),  0.0f),
+        glm::vec3( sin(75.0),  cos(75.0),  0.0f),
+        glm::vec3( sin(15.0),  cos(15.0),  0.0f)
     };
 
     // rotational axes speeds for the containers
@@ -265,7 +268,7 @@ int main(){
         planetPos = glm::translate(planetPos, POINT_ZERO);
         planetPos = glm::scale(planetPos, glm::vec3(1.0f, 1.0f, 1.0f));
         // set the orbital movement of the planet around (0,1,0)
-        planetPos = glm::rotate(planetPos, getActiveTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+        planetPos = glm::rotate(planetPos, globalRotationSpeed * glm::radians(getActiveTime()), glm::vec3(0.0f, 1.0f, 0.0f));
         // move to a radius
         planetPos = glm::translate(planetPos, PLANET_ORBITAL_RADIUS);
 
@@ -309,12 +312,12 @@ int main(){
             glm::mat4 cotainerPos = glm::mat4(1.0f);
             // move to the center of the planet
             cotainerPos = glm::translate(cotainerPos, glm::vec3(planetPos * glm::vec4(POINT_ZERO, 1.0)));
-            cotainerPos = glm::rotate(cotainerPos, containerOrbitSpeeds[container] * getActiveTime() + containerOrbitOffsets[container], containerOrbitAxes[container]);
+            cotainerPos = glm::rotate(cotainerPos, globalRotationSpeed * containerOrbitSpeeds[container] * glm::radians(getActiveTime()) + containerOrbitOffsets[container], containerOrbitAxes[container]);
             // move relative to the planet
             cotainerPos = glm::translate(cotainerPos, containerOrbits[container] );
 
             // calculate the containers rotation around themself
-            // cotainerPos = glm::rotate(cotainerPos, containerRotationAxesSpeeds[container] * getActiveTime() + containerRotationAxesOffsets[container], containerRotationAxes[container]);
+            cotainerPos = glm::rotate(cotainerPos, globalRotationSpeed * containerRotationAxesSpeeds[container] * glm::radians(getActiveTime()) + containerRotationAxesOffsets[container], containerRotationAxes[container]);
 
             containerShader.setMat4("model", cotainerPos);
 
@@ -343,7 +346,7 @@ int main(){
         // get the fps
         framesRendered++;
         if ((int)currentFrameTime- prevSec == 1){
-            printf("FPS %d\n",framesRendered);
+            printf("FPS %d %f\n",framesRendered, (double)globalRotationSpeed);
             framesRendered = 0;
         }
         prevSec = (int)getActiveTime();
@@ -370,7 +373,6 @@ int main(){
     glDeleteVertexArrays(1, &containerVAO);
     glDeleteVertexArrays(1, &lightVAO);
     glDeleteBuffers(1, &VBO);
-    // glDeleteBuffers(1, &EBO);
 
     glfwTerminate();    
     return 0;
@@ -409,10 +411,10 @@ void processInput(GLFWwindow *window){
     // rotate left and right
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
         // change the front of x an z 
-        cameraFront = glm::vec3(sin(cameraRotation += rotationSpeed*cameraSpeed), sin(cameraTilt), -cos(cameraRotation += rotationSpeed*cameraSpeed)-cos(cameraTilt)); 
+        cameraFront = glm::vec3(sin(cameraRotation += cameraRotationSpeed*cameraSpeed), sin(cameraTilt), -cos(cameraRotation += cameraRotationSpeed*cameraSpeed)-cos(cameraTilt)); 
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
         // change the front of x an z 
-        cameraFront = glm::vec3(sin(cameraRotation -= rotationSpeed*cameraSpeed), sin(cameraTilt), -cos(cameraRotation -= rotationSpeed*cameraSpeed)-cos(cameraTilt)); 
+        cameraFront = glm::vec3(sin(cameraRotation -= cameraRotationSpeed*cameraSpeed), sin(cameraTilt), -cos(cameraRotation -= cameraRotationSpeed*cameraSpeed)-cos(cameraTilt)); 
 
     // left and right
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
@@ -426,14 +428,23 @@ void processInput(GLFWwindow *window){
     if (glfwGetKey(window, GLFW_KEY_C) == GLFW_PRESS)
         paused = false;
 
+    // increase speed
+    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS){
+        globalRotationSpeed += globalRotationSpeedIncrease;
+    }
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS){
+        globalRotationSpeed -= globalRotationSpeedIncrease;
+    }
+
+
     // // tilt up and down
     // if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
-    //     cameraFront = glm::vec3(sin(cameraRotation), sin(cameraTilt += rotationSpeed*cameraSpeed), -cos(cameraTilt += rotationSpeed*cameraSpeed)-cos(cameraRotation)); 
-    //     // cameraUp    = glm::vec3(sin(cameraTilt += rotationSpeed*cameraSpeed), cos(cameraTilt += rotationSpeed*cameraSpeed), 0.0f); 
+    //     cameraFront = glm::vec3(sin(cameraRotation), sin(cameraTilt += cameraRotationSpeed*cameraSpeed), -cos(cameraTilt += cameraRotationSpeed*cameraSpeed)-cos(cameraRotation)); 
+    //     // cameraUp    = glm::vec3(sin(cameraTilt += cameraRotationSpeed*cameraSpeed), cos(cameraTilt += cameraRotationSpeed*cameraSpeed), 0.0f); 
     // }
     // if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
-    //     cameraFront = glm::vec3(sin(cameraRotation), sin(cameraTilt -= rotationSpeed*cameraSpeed), -cos(cameraTilt -= rotationSpeed*cameraSpeed)-cos(cameraRotation)); 
-    //     // cameraUp    = glm::vec3(sin(cameraTilt -= rotationSpeed*cameraSpeed), cos(cameraTilt -= rotationSpeed*cameraSpeed), -cos(cameraRotation)); 
+    //     cameraFront = glm::vec3(sin(cameraRotation), sin(cameraTilt -= cameraRotationSpeed*cameraSpeed), -cos(cameraTilt -= cameraRotationSpeed*cameraSpeed)-cos(cameraRotation)); 
+    //     // cameraUp    = glm::vec3(sin(cameraTilt -= cameraRotationSpeed*cameraSpeed), cos(cameraTilt -= cameraRotationSpeed*cameraSpeed), -cos(cameraRotation)); 
     // }
 
 }
