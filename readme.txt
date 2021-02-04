@@ -4,7 +4,7 @@
 Οι βιβλιοθηκες για τους μαθηματικούς υπολογισμούς αλλα και για την εκδοση της openGL GLM, GLAD ειναι σε header files και μεταγλωτιζονται μαζι με το εκτελεσιμο.
 
 Πριν την μεταγλώττιση πρέπει να είναι εγκατεστημένα τα:
-sudo apt-get install libsoil-dev libglm-dev libassimp-dev libglew-dev libglfw3-dev libxinerama-dev libxcursor-dev libxi-dev mesa-common-dev libglm-dev 
+sudo apt-get build-essential install libsoil-dev libglm-dev libassimp-dev libglew-dev libglfw3-dev libxinerama-dev libxcursor-dev libxi-dev mesa-common-dev libglm-dev 
 
 Για την μεταγλώττιση αρκει μονο η εντολή make
 
@@ -48,6 +48,8 @@ E -> μειωση ταχυτητας περιστροφής
 
 
 ************ Για την υλοποίηση ************
+
+Για την εργασια εχει χρησιμοποιηθεί κωδικας απο το εργαστηριο και το tutorial https://learnopengl.com/
 
 Για την υλοποίηση έχει χρησιμοποιηθεί το αντικειμενο planet.
 Αυτό έχει εκτελεί κυκλική κίνηση γύρω από το 0,0. 

@@ -151,12 +151,12 @@ int main(){
 
     // orbital axes for the containers
     glm::vec3 containerOrbitAxes[] = {
-        glm::vec3( sin(0.0),  cos(0.0),  0.0f),
-        glm::vec3( sin(10.0),  cos(10.0),  0.0f),
-        glm::vec3( sin(45.0),  cos(45.0),  0.0f),
-        glm::vec3( sin(0.0),  cos(0.0),  0.0f),
-        glm::vec3( sin(0.0),  cos(0.0),  0.0f),
-        glm::vec3( sin(15.0),  cos(15.0),  0.0f)
+        glm::vec3( sin(glm::radians(0.0)),   cos(glm::radians(0.0)),  0.0f),
+        glm::vec3( sin(glm::radians(30.0)),  cos(glm::radians(30.0)),  0.0f),
+        glm::vec3( sin(glm::radians(45.0)),  cos(glm::radians(45.0)),  0.0f),
+        glm::vec3( sin(glm::radians(0.0)),   cos(glm::radians(0.0)),  0.0f),
+        glm::vec3( sin(glm::radians(0.0)),   cos(glm::radians(0.0)),  0.0f),
+        glm::vec3( sin(glm::radians(15.0)),  cos(glm::radians(15.0)),  0.0f)
     };
 
     // orbital speeds for the containers
@@ -171,12 +171,12 @@ int main(){
 
     // rotational axes for the containers
     glm::vec3 containerRotationAxes[] = {
-        glm::vec3( sin(45.0),  cos(45.0),  0.0f),
-        glm::vec3( sin(10.0),  cos(10.0),  0.0f),
-        glm::vec3( sin(45.0),  cos(45.0),  0.0f),
-        glm::vec3( sin(90.0),  cos(90.0),  0.0f),
-        glm::vec3( sin(75.0),  cos(75.0),  0.0f),
-        glm::vec3( sin(15.0),  cos(15.0),  0.0f)
+        glm::vec3( sin(glm::radians(45.0)),  cos(glm::radians(45.0)),  0.0f),
+        glm::vec3( sin(glm::radians(30.0)),  cos(glm::radians(30.0)),  0.0f),
+        glm::vec3( sin(glm::radians(45.0)),  cos(glm::radians(45.0)),  0.0f),
+        glm::vec3( sin(glm::radians(90.0)),  cos(glm::radians(90.0)),  0.0f),
+        glm::vec3( sin(glm::radians(75.0)),  cos(glm::radians(75.0)),  0.0f),
+        glm::vec3( sin(glm::radians(15.0)),  cos(glm::radians(15.0)),  0.0f)
     };
 
     // rotational axes speeds for the containers
